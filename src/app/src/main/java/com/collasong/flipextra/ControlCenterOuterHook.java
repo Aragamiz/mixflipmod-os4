@@ -166,7 +166,7 @@ public final class ControlCenterOuterHook {
                                 if (sIsCompact && param.args != null && param.args.length > 0
                                         && param.args[0] instanceof Integer
                                         && ((Integer) param.args[0]) == deviceItemWidthId) {
-                                    param.setResult(236);
+                                    param.setResult(216);
                                 }
                             }
                         });
@@ -176,38 +176,51 @@ public final class ControlCenterOuterHook {
             try {
                 Class<?> adapterCls = cl.loadClass(
                         "miui.systemui.controlcenter.panel.main.devicecenter.devices.DeviceCenterCardController$_adapter$1");
-                XposedCompat.hookAllMethods(adapterCls, "onCreateViewHolder",
-                        new XposedCompat.SimpleCallback() {
-                            @Override
-                            public void after(XposedCompat.HookParam param) {
-                                if (!sIsCompact) {
-                                    return;
-                                }
-                                Object vh = param.getResult();
-                                if (vh == null) {
-                                    return;
-                                }
-                                try {
-                                    Field f = vh.getClass().getField("itemView");
-                                    Object iv = f.get(vh);
-                                    if (iv instanceof View) {
-                                        int targetW = 236;
-                                        if (param.args != null && param.args.length > 0 && param.args[0] instanceof ViewGroup) {
-                                            ViewGroup parent = (ViewGroup) param.args[0];
-                                            int avail = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
-                                            if (avail > 300) {
-                                                targetW = Math.min(245, avail / 3);
-                                            }
+                final XposedCompat.SimpleCallback applySlotWidth = new XposedCompat.SimpleCallback() {
+                    @Override
+                    public void after(XposedCompat.HookParam param) {
+                        Object vh = param.getResult();
+                        if (vh == null && param.args != null && param.args.length > 0) {
+                            vh = param.args[0];
+                        }
+                        if (vh == null) {
+                            return;
+                        }
+                        // 跳过 EmptyDeviceViewHolder / OtherDeviceViewHolder（全宽项）
+                        String vhName = vh.getClass().getSimpleName();
+                        if (vhName.contains("Empty") || vhName.contains("Other")) {
+                            return;
+                        }
+                        try {
+                            Field f = vh.getClass().getField("itemView");
+                            Object iv = f.get(vh);
+                            if (iv instanceof View) {
+                                View itemView = (View) iv;
+                                ViewGroup.LayoutParams lp = itemView.getLayoutParams();
+                                if (lp != null && lp.width != ViewGroup.LayoutParams.MATCH_PARENT) {
+                                    if (sIsCompact) {
+                                        try {
+                                            lp.getClass().getMethod("setFlexBasisPercent", float.class)
+                                                    .invoke(lp, 0.33f);
+                                        } catch (Throwable ignored) {
                                         }
-                                        ViewGroup.LayoutParams lp = ((View) iv).getLayoutParams();
-                                        if (lp != null && lp.width != -1) {
-                                            lp.width = targetW;
+                                        lp.width = 216;
+                                        itemView.setLayoutParams(lp);
+                                    } else {
+                                        try {
+                                            lp.getClass().getMethod("setFlexBasisPercent", float.class)
+                                                    .invoke(lp, -1.0f);
+                                        } catch (Throwable ignored) {
                                         }
                                     }
-                                } catch (Throwable ignored) {
                                 }
                             }
-                        });
+                        } catch (Throwable ignored) {
+                        }
+                    }
+                };
+                XposedCompat.hookAllMethods(adapterCls, "onCreateViewHolder", applySlotWidth);
+                XposedCompat.hookAllMethods(adapterCls, "onBindViewHolder", applySlotWidth);
             } catch (Throwable ignored) {
             }
 
@@ -243,6 +256,28 @@ public final class ControlCenterOuterHook {
                         }
                     }
                 });
+                XposedCompat.hookAllMethods(cardCtrlCls, "setJustifyContent", new XposedCompat.SimpleCallback() {
+                    @Override
+                    public void before(XposedCompat.HookParam param) {
+                        if (sIsCompact && param.args != null && param.args.length > 0
+                                && param.args[0] instanceof Integer && ((Integer) param.args[0]) == 0) {
+                            param.args[0] = 5; // JustifyContent.SPACE_EVENLY，消除右侧留白
+                        }
+                    }
+                });
+                try {
+                    Class<?> flexLmCls = cl.loadClass("com.google.android.flexbox.FlexboxLayoutManager");
+                    XposedCompat.hookAllMethods(flexLmCls, "setJustifyContent", new XposedCompat.SimpleCallback() {
+                        @Override
+                        public void before(XposedCompat.HookParam param) {
+                            if (sIsCompact && param.args != null && param.args.length > 0
+                                    && param.args[0] instanceof Integer && ((Integer) param.args[0]) == 0) {
+                                param.args[0] = 5;
+                            }
+                        }
+                    });
+                } catch (Throwable ignored) {
+                }
             } catch (Throwable ignored) {
             }
 

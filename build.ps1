@@ -39,8 +39,8 @@ if (![System.IO.Path]::IsPathRooted($KsFile)) { $KsFile = (Resolve-Path (Join-Pa
 if (!$KeyAlias) { $KeyAlias = "flipclock" }
 
 $TargetPkg = "io.github.aragamiz.mixflipmod_os4"
-$TargetVerCode = "9"
-$TargetVer = "1.0.12-flip2(re)"
+$TargetVerCode = "10"
+$TargetVer = "1.0.13-flip2(re)"
 $ReleaseTag = "$TargetVerCode-$TargetVer"
 $ReleaseDir = Join-Path $Here ("release\" + $ReleaseTag)
 New-Item -ItemType Directory -Path $ReleaseDir -Force | Out-Null
@@ -95,6 +95,36 @@ import zipfile, struct, sys
 
 target_pkg = sys.argv[1]
 target_ver = sys.argv[2]
+target_ver_code = int(sys.argv[3])
+
+def patch_axml_version_code(data, new_code):
+    buf = bytearray(data)
+    # Locate XML ResourceMap chunk (0x0180) to find string index of android:versionCode (0x0101021b)
+    pos = 8
+    vc_idx = -1
+    while pos + 8 <= len(buf):
+        ctype, chdr, csz = struct.unpack_from('<HHI', buf, pos)
+        if csz == 0:
+            break
+        if ctype == 0x0180:
+            cnt = (csz - chdr) // 4
+            for i in range(cnt):
+                rid = struct.unpack_from('<I', buf, pos + chdr + i * 4)[0]
+                if rid == 0x0101021b:
+                    vc_idx = i
+                    break
+        elif ctype == 0x0102 and vc_idx >= 0:  # START_ELEMENT
+            attr_start = pos + chdr + 20  # ns(4)+name(4)+attrStart(2)+attrSize(2)+attrCount(2)+idIdx(2)+classIdx(2)+styleIdx(2)
+            attr_cnt = struct.unpack_from('<H', buf, pos + chdr + 12)[0]
+            for a in range(attr_cnt):
+                ap = attr_start + a * 20
+                a_name = struct.unpack_from('<I', buf, ap + 4)[0]
+                a_type = buf[ap + 15]
+                if a_name == vc_idx and a_type == 0x10:  # TYPE_INT_DEC
+                    struct.pack_into('<I', buf, ap + 16, new_code)
+                    return bytes(buf)
+        pos += csz
+    return bytes(buf)
 
 def patch_trio_mtz(mtz_bytes):
     import io
@@ -163,13 +193,14 @@ with zipfile.ZipFile('base_mod.apk', 'r') as zin, zipfile.ZipFile('unsigned.apk'
         content = zin.read(name)
         if name == 'AndroidManifest.xml':
             content = patch_axml_strings(content, repls)
+            content = patch_axml_version_code(content, target_ver_code)
         elif name == 'assets/widgets/mixflipmod_flip2_trio.mtz':
             content = patch_trio_mtz(content)
         zout.writestr(item, content)
     zout.write('patched_classes.dex', 'classes.dex', compress_type=zipfile.ZIP_DEFLATED)
     zout.write('dex/classes.dex', 'classes2.dex', compress_type=zipfile.ZIP_DEFLATED)
     zout.writestr('META-INF/xposed/java_init.list', 'll0\ncom.collasong.flipextra.MixFlipExtraModule\n', compress_type=zipfile.ZIP_DEFLATED)
-'@ | python - "$TargetPkg" "$TargetVer"
+'@ | python - "$TargetPkg" "$TargetVer" "$TargetVerCode"
     if ($LASTEXITCODE -ne 0) { throw "zip merge failed" }
 
     & "$Tools\build-tools\zipalign.exe" -p -f 4 "unsigned.apk" "aligned.apk"

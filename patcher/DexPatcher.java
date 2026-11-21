@@ -59,7 +59,7 @@ public final class DexPatcher {
                     if ("1.0.8-flip2".equals(val)) {
                         newFields.add(new ImmutableField(
                                 f.getDefiningClass(), f.getName(), f.getType(), f.getAccessFlags(),
-                                new ImmutableStringEncodedValue("1.0.12-flip2(re)"),
+                                new ImmutableStringEncodedValue("1.0.13-flip2(re)"),
                                 f.getAnnotations(), f.getHiddenApiRestrictions()));
                         classModified = true;
                         replacedVer++;
@@ -124,7 +124,7 @@ public final class DexPatcher {
                                 }
                                 int reg = ((com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction) inst).getRegisterA();
                                 mut.replaceInstruction(idx, new BuilderInstruction21c(
-                                        Opcode.CONST_STRING, reg, new ImmutableStringReference("1.0.12-flip2(re)")));
+                                        Opcode.CONST_STRING, reg, new ImmutableStringReference("1.0.13-flip2(re)")));
                                 methodMod = true;
                                 replacedVer++;
                             }
