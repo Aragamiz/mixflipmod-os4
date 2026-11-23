@@ -43,6 +43,7 @@ public final class MixFlipExtraModule extends XposedModule {
         }
         installWeTypeFlipCompatHook(param.getClassLoader());
         OuterFullscreenHook.install(param.getClassLoader());
+        OuterXiaoAiStandbyHook.install(param.getClassLoader());
     }
 
     /**

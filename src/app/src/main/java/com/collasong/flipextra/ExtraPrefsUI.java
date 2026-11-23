@@ -31,6 +31,7 @@ public final class ExtraPrefsUI {
     public static final String KEY_DIALER_OUTER_FIT = "dialer_outer_fit";
     public static final String KEY_HIDE_OUTER_ANTIMISTAKE = "hide_outer_antimistake_bar";
     public static final String KEY_NETEASE_OUTER_TOP_FIX = "netease_outer_top_fix";
+    public static final String KEY_OUTER_XIAOAI_STANDBY = "outer_xiaoai_standby";
 
     private static final int ID_STATUS_LOCK_TITLE   = 0x7f990001;
     private static final int ID_STATUS_LOCK_SUMMARY = 0x7f990002;
@@ -56,6 +57,8 @@ public final class ExtraPrefsUI {
     private static final int ID_GLASS_ALPHA_50           = 0x7f990016;
     private static final int ID_GLASS_ALPHA_70           = 0x7f990017;
     private static final int ID_GLASS_ALPHA_85           = 0x7f990018;
+    private static final int ID_XIAOAI_STANDBY_TITLE     = 0x7f990019;
+    private static final int ID_XIAOAI_STANDBY_SUM       = 0x7f99001a;
 
     private static final Map<Integer, String> STRINGS = new HashMap<>();
     private static final String[] DEFAULT_TRUE_KEYS = {
@@ -66,7 +69,8 @@ public final class ExtraPrefsUI {
             KEY_FLIPHOME_WIDGET_COLOR_FILL,
             KEY_DIALER_OUTER_FIT,
             KEY_HIDE_OUTER_ANTIMISTAKE,
-            KEY_NETEASE_OUTER_TOP_FIX
+            KEY_NETEASE_OUTER_TOP_FIX,
+            KEY_OUTER_XIAOAI_STANDBY
     };
 
     private static volatile boolean sInjected = false;
@@ -97,6 +101,8 @@ public final class ExtraPrefsUI {
         STRINGS.put(ID_GLASS_ALPHA_50, "50% 浓雾磨砂");
         STRINGS.put(ID_GLASS_ALPHA_70, "70% 高对比浅白");
         STRINGS.put(ID_GLASS_ALPHA_85, "85% 近似纯白");
+        STRINGS.put(ID_XIAOAI_STANDBY_TITLE, "合盖外屏唤醒小爱直达陪伴模式");
+        STRINGS.put(ID_XIAOAI_STANDBY_SUM, "合盖态长按电源键等快捷方式唤醒超级小爱时，直接进入 Standby 实时语音陪伴（更新后需重启）");
         STRINGS.put(0x7f090067, "MixFlipMod 派生版：外屏布局、输入法与音乐适配\n由collasong修改定制os4相关内容");
     }
 
@@ -210,11 +216,14 @@ public final class ExtraPrefsUI {
         Constructor<?> qmCtor = qmCls.getDeclaredConstructor(bbCls);
         qmCtor.setAccessible(true);
 
-        // 0. android (系统框架) 分组追加：外屏真全屏（隐藏底部灰白防误触条）
+        // 0. android (系统框架) 分组追加：外屏真全屏 + 合盖外屏唤醒小爱直达陪伴模式
         Object androidBb = cbCls.getDeclaredField("b").get(null);
         appendSwitch(androidBb, bbPrefsField,
                 k21Ctor.newInstance(KEY_HIDE_OUTER_ANTIMISTAKE, ID_HIDE_ANTIMISTAKE_TITLE,
                         Integer.valueOf(ID_HIDE_ANTIMISTAKE_SUM), null, 24));
+        appendSwitch(androidBb, bbPrefsField,
+                k21Ctor.newInstance(KEY_OUTER_XIAOAI_STANDBY, ID_XIAOAI_STANDBY_TITLE,
+                        Integer.valueOf(ID_XIAOAI_STANDBY_SUM), null, 24));
 
         // 1. com.android.systemui 分组追加：外屏状态栏双击锁屏
         Object sysuiBb = cbCls.getDeclaredField("c").get(null);
