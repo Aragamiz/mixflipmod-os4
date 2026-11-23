@@ -22,6 +22,7 @@ public final class MixFlipExtraModule extends XposedModule {
             OuterNotificationHook.install(cl);
             ControlCenterOuterHook.install(cl);
             OuterMediaFocusGlassHook.install(cl);
+            HyperViewScaleFixHook.installSystemUI(cl);
         } else if ("com.miui.fliphome".equals(pkg)) {
             WidgetGlassHook.install(cl);
             OuterFullscreenHook.installFlipHomeGestureHook(cl);
