@@ -12,7 +12,7 @@
 - **通知滑出菜单 & 控制中心恢复**（`OuterNotificationHook` / `ControlCenterOuterHook` / `OuterMediaFocusGlassHook`）：兼容 OS4 `MiuiConfigs.isTinyScreen` 重载与 `PluginFactory.componentName` 更名，恢复完整控制中心、`3+3` 设备中心与媒体/焦点通知柔光玻璃。
 - **外屏小部件轻柔光玻璃 & 7 档通透度调节**（`WidgetGlassHook`）：仅通过原生 `setBackgroundBlendColors` 调整磨砂白玻璃浓度（`5%`~`85%` 7 档实时切换），规避 Adreno Vulkan 着色器编译卡死，并在暗色/未补白 App（如 LSPosed/酷安）下自动保持高对比反白文字。
 - **微信输入法 4.0.1+ 双旋转适配**（`WeTypeOuterHook`）：正置 `810px` 避让、倒置（`rot==2`）`1208px` 全宽 + 同步防跳动 + 高度修正。
-- **外屏拨号盘对齐 & 网易云/计算器修复**（`DialerOuterHook` / `NetEaseOuterHook` / `CalculatorOuterHook`）。
+- **外屏拨号盘对齐 & 网易云/计算器修复**（`DialerOuterHook` / `NetEaseOuterHook` / `CalculatorOuterHook`）：拦截网易云外屏 `ViewRootImpl.scrollToRectOrFocus` 异常负向滚动（根治顶部黑边、双重留白及底部导航栏被顶出屏幕）。
 - **合盖外屏唤醒小爱直达陪伴模式**（`OuterXiaoAiStandbyHook`）：合盖态长按电源键等快捷方式唤醒超级小爱时，直接进入 Standby 实时语音陪伴。
 - **外屏倒置应用卡片动画修正**（`HyperViewScaleFixHook`）：在 `com.android.systemui`（WMShell）侧对 `view_scale_remote_transition` 做坐标预补偿，修复外屏摄像头朝上（`ROTATION_180`）时小红书、B 站等「哪里点开哪里返回」动画偏移，无需额外勾选第三方应用作用域。
 

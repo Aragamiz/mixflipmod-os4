@@ -93,8 +93,8 @@ public final class ExtraPrefsUI {
         STRINGS.put(ID_DIALER_SUMMARY, "居中铺满 12 键网格并自动避让顶部通话标题栏");
         STRINGS.put(ID_HIDE_ANTIMISTAKE_TITLE, "外屏真全屏（隐藏底部灰白防误触条）");
         STRINGS.put(ID_HIDE_ANTIMISTAKE_SUM, "隐藏外屏底部 32px 系统防误触遮罩，消除应用与输入法底部留边（更新后需重启）");
-        STRINGS.put(ID_NETEASE_TOP_TITLE, "网易云倒置顶部留白修正");
-        STRINGS.put(ID_NETEASE_TOP_SUM, "摄像头朝上时归零状态栏高度，消除顶部双重黑边与界面异常下移");
+        STRINGS.put(ID_NETEASE_TOP_TITLE, "网易云外屏界面下移修正");
+        STRINGS.put(ID_NETEASE_TOP_SUM, "阻止外屏焦点触发窗口异常向下滚动，消除顶部黑边、双重留白及底部导航栏被顶出屏幕");
         STRINGS.put(ID_WIDGET_COLOR_FILL_TITLE, "未补色应用侧边智能补色");
         STRINGS.put(ID_WIDGET_COLOR_FILL_SUM, "针对 LSPosed 等透明导航栏应用未补白边的情况，自动抬高小部件浅色磨砂托底保证文字清晰");
         STRINGS.put(ID_WIDGET_GLASS_ALPHA_TITLE, "玻璃通透度调节");
@@ -240,8 +240,9 @@ public final class ExtraPrefsUI {
                 k21Ctor.newInstance(KEY_HYPER_VIEW_SCALE_FIX, ID_HYPER_VIEW_SCALE_TITLE,
                         Integer.valueOf(ID_HYPER_VIEW_SCALE_SUM), null, 24));
 
-        // 2. com.tencent.wetype 分组追加：微信输入法 4.0.1+ 外屏避让 + 倒置全宽
+        // 2. com.tencent.wetype 分组：移除原版旧款外屏缩放开关（wechat_ime_fit，不兼容 4.0.1+），追加 4.0.1+ 外屏避让 + 倒置全宽
         Object wetypeBb = cbCls.getDeclaredField("g").get(null);
+        removeSwitchesByKey(wetypeBb, bbPrefsField, "wechat_ime_fit");
         appendSwitch(wetypeBb, bbPrefsField,
                 k21Ctor.newInstance(KEY_WETYPE_OUTER_FIT, ID_WETYPE_TITLE,
                         Integer.valueOf(ID_WETYPE_SUMMARY), null, 24));
