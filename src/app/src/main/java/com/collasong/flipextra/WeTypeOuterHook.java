@@ -520,6 +520,13 @@ public final class WeTypeOuterHook {
         View candView = mainCol.getChildAt(0);
         View kbView = mainCol.getChildAt(1);
 
+        if (root.outerMode) {
+            resetTransform(candView);
+            resetTransform(kbView);
+            resetTransform(aeq);
+            resetTransform(dv);
+            return;
+        }
         InputMethodService ims = root.imsRef.get();
         int rot = getAccurateRotation(ims, root, root.getContext(), root.getDisplay());
         if (rot == 0 && sLastKnownOuterRot == 2) {
@@ -805,9 +812,7 @@ public final class WeTypeOuterHook {
                 new android.view.ViewTreeObserver.OnPreDrawListener() {
                     @Override
                     public boolean onPreDraw() {
-                        if (!outerMode) {
-                            applyRot2SplitLayout(OuterFitRoot.this);
-                        }
+                        applyRot2SplitLayout(OuterFitRoot.this);
                         return true;
                     }
                 };
@@ -955,6 +960,7 @@ public final class WeTypeOuterHook {
             }
             topOffset = Math.max(0, getHeight() - targetH);
             inner.layout(0, topOffset, inner.getMeasuredWidth(), topOffset + inner.getMeasuredHeight());
+            applyRot2SplitLayout(this);
         }
 
         @Override

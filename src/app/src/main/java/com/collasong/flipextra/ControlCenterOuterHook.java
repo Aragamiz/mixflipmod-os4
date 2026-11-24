@@ -156,9 +156,11 @@ public final class ControlCenterOuterHook {
             } catch (Throwable ignored) {
             }
 
+            int resolvedDeviceItemWidthId = 0;
             try {
                 Class<?> dimenCls = cl.loadClass("miui.systemui.controlcenter.R$dimen");
-                final int deviceItemWidthId = dimenCls.getField("device_center_device_item_width").getInt(null);
+                resolvedDeviceItemWidthId = dimenCls.getField("device_center_device_item_width").getInt(null);
+                final int deviceItemWidthId = resolvedDeviceItemWidthId;
                 XposedCompat.hookAllMethods(Resources.class, "getDimensionPixelSize",
                         new XposedCompat.SimpleCallback() {
                             @Override
@@ -173,6 +175,7 @@ public final class ControlCenterOuterHook {
             } catch (Throwable ignored) {
             }
 
+            final int innerDeviceItemWidthId = resolvedDeviceItemWidthId;
             try {
                 Class<?> adapterCls = cl.loadClass(
                         "miui.systemui.controlcenter.panel.main.devicecenter.devices.DeviceCenterCardController$_adapter$1");
@@ -207,10 +210,26 @@ public final class ControlCenterOuterHook {
                                         lp.width = 216;
                                         itemView.setLayoutParams(lp);
                                     } else {
+                                        boolean changed = false;
                                         try {
                                             lp.getClass().getMethod("setFlexBasisPercent", float.class)
                                                     .invoke(lp, -1.0f);
+                                            changed = true;
                                         } catch (Throwable ignored) {
+                                        }
+                                        if (innerDeviceItemWidthId != 0) {
+                                            try {
+                                                int origW = itemView.getResources()
+                                                        .getDimensionPixelSize(innerDeviceItemWidthId);
+                                                if (origW > 0 && lp.width != origW) {
+                                                    lp.width = origW;
+                                                    changed = true;
+                                                }
+                                            } catch (Throwable ignored) {
+                                            }
+                                        }
+                                        if (changed) {
+                                            itemView.setLayoutParams(lp);
                                         }
                                     }
                                 }

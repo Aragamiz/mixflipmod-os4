@@ -127,27 +127,30 @@ public final class NetEaseOuterHook {
                 int lh = di.logicalHeight;
                 boolean isOuter = (Math.min(nw, nh) == 1208 && Math.max(nw, nh) == 1392)
                         || (Math.min(lw, lh) == 1208 && Math.max(lw, lh) == 1392);
-                if (isOuter) {
-                    if (di.rotation == 2) {
-                        return true;
-                    }
-                    // 若 DisplayInfo.rotation 仍被 BoundsCompat 改写为 0，则继续用 Configuration 兜底
-                } else if (Math.min(nw, nh) > 0) {
-                    // 明确在内屏（如 1224x2912），直接返回 false
+                boolean isInner = (Math.min(nw, nh) == 1224 && Math.max(nw, nh) == 2912);
+                if (isOuter && di.rotation == 2) {
+                    return true;
+                }
+                if (isInner) {
                     return false;
                 }
+                // 注意：外屏兼容模式下 BoundsCompat 会把 logical/natural 改写成 1245x2142 且 rotation=0，
+                // 不能误判为内屏提前 return false，必须继续走下面的 Configuration 兜底！
             }
         } catch (Throwable ignored) {
         }
 
-        // 2. 兜底读 ActivityThread / Resources.getSystem() 的真实 windowConfiguration
+        // 2. 兜底读 ActivityThread 的 windowConfiguration（外屏倒置兼容模式下 bounds.left=399）
         try {
             ActivityThread at = ActivityThread.currentActivityThread();
             Configuration cfg = at != null ? at.getConfiguration() : null;
             if (cfg != null && cfg.windowConfiguration != null) {
                 int rot = cfg.windowConfiguration.getDisplayRotation();
                 Rect bounds = cfg.windowConfiguration.getBounds();
-                if (rot == 2 && bounds != null && bounds.left >= 390) {
+                if (bounds != null && bounds.left >= 390) {
+                    return true;
+                }
+                if (rot == 2 && bounds != null && Math.min(bounds.width(), bounds.height()) <= 1300) {
                     return true;
                 }
             }
