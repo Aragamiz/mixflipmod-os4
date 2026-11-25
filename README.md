@@ -15,6 +15,7 @@
 - **外屏拨号盘对齐 & 网易云/计算器修复**（`DialerOuterHook` / `NetEaseOuterHook` / `CalculatorOuterHook`）：拦截网易云外屏 `ViewRootImpl.scrollToRectOrFocus` 异常负向滚动（根治顶部黑边、双重留白及底部导航栏被顶出屏幕）。
 - **合盖外屏唤醒小爱直达陪伴模式**（`OuterXiaoAiStandbyHook`）：合盖态长按电源键等快捷方式唤醒超级小爱时，直接进入 Standby 实时语音陪伴。
 - **外屏倒置应用卡片动画修正**（`HyperViewScaleFixHook`）：在 `com.android.systemui`（WMShell）侧对 `view_scale_remote_transition` 做坐标预补偿，修复外屏摄像头朝上（`ROTATION_180`）时小红书、B 站等「哪里点开哪里返回」动画偏移，无需额外勾选第三方应用作用域。
+- **外屏侧边补色防黑屏闪白**（`OuterShellLetterboxFixHook`）：在 `com.android.systemui`（WMShell）侧拦截外屏 `1208×1392` 下 `MiuiShellLetterboxManagerImpl` 误叠加的纯黑 `ShellLetterboxSurface`，根治半透明子页/弹窗/输入法触发的侧边变黑卡死与小部件闪白屏（全机应用通用，内屏不受影响）。
 
 ## 构建说明
 

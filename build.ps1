@@ -39,8 +39,8 @@ if (![System.IO.Path]::IsPathRooted($KsFile)) { $KsFile = (Resolve-Path (Join-Pa
 if (!$KeyAlias) { $KeyAlias = "flipclock" }
 
 $TargetPkg = "io.github.aragamiz.mixflipmod_os4"
-$TargetVerCode = "14"
-$TargetVer = "1.0.17-flip2(re)"
+$TargetVerCode = "15"
+$TargetVer = "1.0.18-flip2(re)"
 $ReleaseTag = "$TargetVerCode-$TargetVer"
 $ReleaseDir = Join-Path $Here ("release\" + $ReleaseTag)
 New-Item -ItemType Directory -Path $ReleaseDir -Force | Out-Null

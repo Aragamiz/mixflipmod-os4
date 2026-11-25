@@ -33,6 +33,7 @@ public final class ExtraPrefsUI {
     public static final String KEY_NETEASE_OUTER_TOP_FIX = "netease_outer_top_fix";
     public static final String KEY_OUTER_XIAOAI_STANDBY = "outer_xiaoai_standby";
     public static final String KEY_HYPER_VIEW_SCALE_FIX = "sysui_hyper_view_scale_rot180_fix";
+    public static final String KEY_OUTER_SHELL_LETTERBOX_FIX = "sysui_outer_shell_letterbox_fix";
 
     private static final int ID_STATUS_LOCK_TITLE   = 0x7f990001;
     private static final int ID_STATUS_LOCK_SUMMARY = 0x7f990002;
@@ -62,6 +63,8 @@ public final class ExtraPrefsUI {
     private static final int ID_XIAOAI_STANDBY_SUM       = 0x7f99001a;
     private static final int ID_HYPER_VIEW_SCALE_TITLE   = 0x7f99001b;
     private static final int ID_HYPER_VIEW_SCALE_SUM     = 0x7f99001c;
+    private static final int ID_SHELL_LETTERBOX_TITLE    = 0x7f99001d;
+    private static final int ID_SHELL_LETTERBOX_SUM      = 0x7f99001e;
 
     private static final Map<Integer, String> STRINGS = new HashMap<>();
     private static final String[] DEFAULT_TRUE_KEYS = {
@@ -74,7 +77,8 @@ public final class ExtraPrefsUI {
             KEY_HIDE_OUTER_ANTIMISTAKE,
             KEY_NETEASE_OUTER_TOP_FIX,
             KEY_OUTER_XIAOAI_STANDBY,
-            KEY_HYPER_VIEW_SCALE_FIX
+            KEY_HYPER_VIEW_SCALE_FIX,
+            KEY_OUTER_SHELL_LETTERBOX_FIX
     };
 
     private static volatile boolean sInjected = false;
@@ -109,6 +113,8 @@ public final class ExtraPrefsUI {
         STRINGS.put(ID_XIAOAI_STANDBY_SUM, "合盖态长按电源键等快捷方式唤醒超级小爱时，直接进入 Standby 实时语音陪伴（更新后需重启）");
         STRINGS.put(ID_HYPER_VIEW_SCALE_TITLE, "外屏倒置应用卡片动画修正");
         STRINGS.put(ID_HYPER_VIEW_SCALE_SUM, "修复摄像头朝上时小红书、B 站等「哪里点开哪里返回」动画错位偏移（无需额外勾选第三方应用）");
+        STRINGS.put(ID_SHELL_LETTERBOX_TITLE, "外屏侧边补色防黑屏闪白");
+        STRINGS.put(ID_SHELL_LETTERBOX_SUM, "阻止 WMShell 在外屏误叠加纯黑 ShellLetterbox 盖住原厂补色，修复激活输入法/弹窗时小部件闪白屏与侧边变黑");
         STRINGS.put(0x7f090067, "MixFlipMod 派生版：外屏布局、输入法与音乐适配\n由collasong修改定制os4相关内容");
     }
 
@@ -231,7 +237,7 @@ public final class ExtraPrefsUI {
                 k21Ctor.newInstance(KEY_OUTER_XIAOAI_STANDBY, ID_XIAOAI_STANDBY_TITLE,
                         Integer.valueOf(ID_XIAOAI_STANDBY_SUM), null, 24));
 
-        // 1. com.android.systemui 分组追加：外屏状态栏双击锁屏 + 外屏倒置应用卡片动画修正
+        // 1. com.android.systemui 分组追加：外屏状态栏双击锁屏 + 外屏倒置应用卡片动画修正 + 外屏侧边补色防黑屏闪白
         Object sysuiBb = cbCls.getDeclaredField("c").get(null);
         appendSwitch(sysuiBb, bbPrefsField,
                 k21Ctor.newInstance(KEY_STATUS_DOUBLE_TAP, ID_STATUS_LOCK_TITLE,
@@ -239,6 +245,9 @@ public final class ExtraPrefsUI {
         appendSwitch(sysuiBb, bbPrefsField,
                 k21Ctor.newInstance(KEY_HYPER_VIEW_SCALE_FIX, ID_HYPER_VIEW_SCALE_TITLE,
                         Integer.valueOf(ID_HYPER_VIEW_SCALE_SUM), null, 24));
+        appendSwitch(sysuiBb, bbPrefsField,
+                k21Ctor.newInstance(KEY_OUTER_SHELL_LETTERBOX_FIX, ID_SHELL_LETTERBOX_TITLE,
+                        Integer.valueOf(ID_SHELL_LETTERBOX_SUM), null, 24));
 
         // 2. com.tencent.wetype 分组：移除原版旧款外屏缩放开关（wechat_ime_fit，不兼容 4.0.1+），追加 4.0.1+ 外屏避让 + 倒置全宽
         Object wetypeBb = cbCls.getDeclaredField("g").get(null);
